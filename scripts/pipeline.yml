@@ -86,6 +86,7 @@ jobs:
   - put: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
     params:
       file: source/target/openssl-security-provider-*.jar
+      pom_file: source/pom.xml
 
 - name: release-docker-image
   public: true
