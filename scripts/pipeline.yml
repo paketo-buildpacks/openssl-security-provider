@@ -52,7 +52,7 @@ resources:
   source:
     repository: gcr.io/paketo-buildpacks/openssl-security-provider-release
     username: _json_key
-    password: ((paketo-gcs-json-key))
+    password: ((artifact-gcs-json-key))
 
 - name: liberica-openjdk-8
   type: registry-image
