@@ -2,11 +2,8 @@
 
 set -euo pipefail
 
-ROOT=$(realpath "$(dirname "${BASH_SOURCE[0]}")"/../..)
-
-if [[ -d "${ROOT}"/maven-cache && ! -d "${HOME}"/.m2 ]]; then
-  ln -s "${ROOT}"/maven-cache "${HOME}"/.m2
-fi
+# shellcheck source=common.sh
+source "$(dirname "$0")"/common.sh
 
 cd "${ROOT}"/source
 

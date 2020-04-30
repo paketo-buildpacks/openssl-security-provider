@@ -18,9 +18,9 @@ resources:
 groups:
 - name: build
   jobs:
-  # - release-major
-  # - release-minor
-  # - release-patch
+  - release-major
+  - release-minor
+  - release-patch
   - test
 
 jobs:
@@ -32,4 +32,49 @@ jobs:
     trigger: true
   - task: test
     file: source/scripts/test.yml
+
+- name:  release-major
+  public: true
+  plan:
+  - get: source
+    resource: source:libpak
+    passed:
+    - test
+  - task: release
+    file: source/scripts/release.yml
+    params:
+      BUMP: major
+  - put: source:libpak
+    params:
+      repository: source
+
+- name:  release-minor
+  public: true
+  plan:
+  - get: source
+    resource: source:libpak
+    passed:
+    - test
+  - task: release
+    file: source/scripts/release.yml
+    params:
+      BUMP: minor
+  - put: source:libpak
+    params:
+      repository: source
+
+- name:  release-patch
+  public: true
+  plan:
+  - get: source
+    resource: source:libpak
+    passed:
+    - test
+  - task: release
+    file: source/scripts/release.yml
+    params:
+      BUMP: patch
+  - put: source:libpak
+    params:
+      repository: source
 
