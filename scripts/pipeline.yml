@@ -20,6 +20,14 @@ resources:
     password: ((github-password))
     branch: master
 
+- name: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
+  icon: language-java
+  type: maven-resource
+  source:
+    url: https://maven.pkg.github.com/paketo-buildpacks/openssl-security-provider
+    username: ((github-username))
+    password: ((github-password))
+
 - name: package-source:openssl-security-provider
   icon: github-circle
   type: git
@@ -29,13 +37,29 @@ resources:
     password: ((github-password))
     tag_filter: v*
 
-- name: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
-  icon: language-java
-  type: maven-resource
+- name: release-docker-image
+  type: git
+  icon: github-circle
   source:
-    url: https://maven.pkg.github.com/paketo-buildpacks/openssl-security-provider
-    username: ((github-username))
-    password: ((github-password))
+    uri:    https://github.com/paketo-buildpacks/openssl-security-provider.git
+    branch: master
+    paths:
+    - scripts/release.Dockerfile
+
+- name: release-latest
+  type: registry-image
+  icon: docker
+  source:
+    repository: gcr.io/paketo-buildpacks/openssl-security-provider-release
+    username: _json_key
+    password: ((paketo-gcs-json-key))
+
+- name: liberica-openjdk-8
+  type: registry-image
+  icon: docker
+  source:
+    repository: bellsoft/liberica-openjdk-debian
+    tag:        bellsoft/liberica-openjdk-debian
 
 groups:
 - name: build
@@ -45,6 +69,9 @@ groups:
   - release-minor
   - release-patch
   - test
+- name: images
+  jobs:
+  - release-docker-image
 
 jobs:
 - name: create-package
@@ -58,6 +85,42 @@ jobs:
   - put: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
     params:
       file: source/target/openssl-security-provider-*.jar
+
+- name: release-docker-image
+  public: true
+  plan:
+  - in_parallel:
+    - get: release-docker-image
+      trigger: true
+    - get: liberica-openjdk-8
+      trigger: true
+  - task: repository-image
+    privileged: true
+    config:
+      platform: linux
+
+      image_resource:
+        type: registry-image
+        source:
+          repository: vito/oci-build-task
+
+      inputs:
+      - name: release-docker-image
+
+      outputs:
+      - name: image
+
+      caches:
+      - path: cache
+
+      run:
+        path: build
+
+      params:
+        DOCKERFILE: release-docker-image/scripts/release.Dockerfile
+  - put: release-latest
+    params:
+      image: image/image.tar
 
 - name: release-major
   public: true

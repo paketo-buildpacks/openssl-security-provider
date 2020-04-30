@@ -4,8 +4,7 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: bellsoft/liberica-openjdk-debian
-    tag: 8
+    repository: gcr.io/paketo-buildpacks/openssl-security-provider-release
 
 inputs:
   - name: source
