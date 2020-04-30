@@ -31,5 +31,5 @@ jobs:
     resource: source:libpak
     trigger: true
   - task: test
-    file: build-common/test.yml
+    file: source/scripts/test.yml
 
