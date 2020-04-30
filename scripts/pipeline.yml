@@ -1,80 +1,114 @@
 ---
 resource_types:
 - name: git
+  type: registry-image
   source:
     repository: concourse/git-resource
+- name: maven-resource
   type: registry-image
+  source:
+    repository: nulldriver/maven-resource
+    tag: latest
 
 resources:
-- name: source:libpak
+- name: source:openssl-security-provider
   type: git
   icon: github-circle
   source:
-    branch: master
-    password: ((github-password))
     uri: https://github.com/paketo-buildpacks/openssl-security-provider.git
     username: ((github-username))
+    password: ((github-password))
+    branch: master
+
+- name: package-source:openssl-security-provider
+  icon: github-circle
+  type: git
+  source:
+    uri: https://github.com/paketo-buildpacks/openssl-security-provider.git
+    username: ((github-username))
+    password: ((github-password))
+    tag_filter: v*
+
+- name: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
+  icon: language-java
+  type: maven-resource
+  source:
+    url: https://maven.pkg.github.com/paketo-buildpacks/openssl-security-provider
+    username: ((github-username))
+    password: ((github-password))
 
 groups:
 - name: build
   jobs:
+  - create-package
   - release-major
   - release-minor
   - release-patch
   - test
 
 jobs:
-- name: test
+- name: create-package
   public: true
   plan:
   - get: source
-    resource: source:libpak
+    resource: package-source:openssl-security-provider
     trigger: true
-  - task: test
+  - task: package
     file: source/scripts/test.yml
+  - put: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
+    params:
+      file: source/target/openssl-security-provider-*.jar
 
-- name:  release-major
+- name: release-major
   public: true
   plan:
   - get: source
-    resource: source:libpak
+    resource: source:openssl-security-provider
     passed:
     - test
   - task: release
     file: source/scripts/release.yml
     params:
       BUMP: major
-  - put: source:libpak
+  - put: source:openssl-security-provider
     params:
       repository: source
 
-- name:  release-minor
+- name: release-minor
   public: true
   plan:
   - get: source
-    resource: source:libpak
+    resource: source:openssl-security-provider
     passed:
     - test
   - task: release
     file: source/scripts/release.yml
     params:
       BUMP: minor
-  - put: source:libpak
+  - put: source:openssl-security-provider
     params:
       repository: source
 
-- name:  release-patch
+- name: release-patch
   public: true
   plan:
   - get: source
-    resource: source:libpak
+    resource: source:openssl-security-provider
     passed:
     - test
   - task: release
     file: source/scripts/release.yml
     params:
       BUMP: patch
-  - put: source:libpak
+  - put: source:openssl-security-provider
     params:
       repository: source
 
+- name: test
+  public: true
+  plan:
+  - get: source
+    resource: source:openssl-security-provider
+    trigger: true
+  - task: test
+    file: source/scripts/test.yml
