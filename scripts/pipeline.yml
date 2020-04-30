@@ -59,7 +59,7 @@ resources:
   icon: docker
   source:
     repository: bellsoft/liberica-openjdk-debian
-    tag:        bellsoft/liberica-openjdk-debian
+    tag:        8
 
 groups:
 - name: build
