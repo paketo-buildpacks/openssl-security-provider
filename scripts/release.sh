@@ -7,13 +7,13 @@ source "$(dirname "$0")"/common.sh
 
 cd "${ROOT}"/source
 
-mvn \
+./mvnw \
   build-helper:parse-version \
   versions:set \
     -DgenerateBackupPoms=false \
     -DnewVersion='${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}'
 
-VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 git add pom.xml
 git \
@@ -45,13 +45,13 @@ else
   PATTERN='${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}-SNAPSHOT'
 fi
 
-mvn \
+./mvnw \
   build-helper:parse-version \
   versions:set \
     -DgenerateBackupPoms=false \
     -DnewVersion="${PATTERN}"
 
-VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 git add pom.xml
 git \
