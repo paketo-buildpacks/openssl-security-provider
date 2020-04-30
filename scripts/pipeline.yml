@@ -1,0 +1,35 @@
+---
+resource_types:
+- name: git
+  source:
+    repository: concourse/git-resource
+  type: registry-image
+
+resources:
+- name: source:libpak
+  type: git
+  icon: github-circle
+  source:
+    branch: master
+    password: ((github-password))
+    uri: https://github.com/paketo-buildpacks/openssl-security-provider.git
+    username: ((github-username))
+
+groups:
+- name: build
+  jobs:
+  # - release-major
+  # - release-minor
+  # - release-patch
+  - test
+
+jobs:
+- name: test
+  public: true
+  plan:
+  - get: source
+    resource: source:libpak
+    trigger: true
+  - task: test
+    file: build-common/test.yml
+
