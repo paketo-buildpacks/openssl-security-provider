@@ -10,6 +10,9 @@ image_resource:
 inputs:
   - name: source
 
+outputs:
+  - name: source
+
 caches:
   - path: maven-cache
 

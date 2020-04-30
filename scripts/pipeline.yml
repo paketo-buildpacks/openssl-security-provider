@@ -27,6 +27,7 @@ resources:
     url: https://maven.pkg.github.com/paketo-buildpacks/openssl-security-provider
     username: ((github-username))
     password: ((github-password))
+    artifact: io.paketo:openssl-security-provider:jar
 
 - name: package-source:openssl-security-provider
   icon: github-circle
