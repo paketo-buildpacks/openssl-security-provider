@@ -20,24 +20,6 @@ resources:
     password: ((github-password))
     branch: master
 
-- name: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
-  icon: language-java
-  type: maven-resource
-  source:
-    url: https://maven.pkg.github.com/paketo-buildpacks/openssl-security-provider
-    username: ((github-username))
-    password: ((github-password))
-    artifact: io.paketo:openssl-security-provider:jar
-
-- name: package-source:openssl-security-provider
-  icon: github-circle
-  type: git
-  source:
-    uri: https://github.com/paketo-buildpacks/openssl-security-provider.git
-    username: ((github-username))
-    password: ((github-password))
-    tag_filter: v*
-
 - name: release-docker-image
   type: git
   icon: github-circle
@@ -65,7 +47,6 @@ resources:
 groups:
 - name: build
   jobs:
-  - create-package
   - release-major
   - release-minor
   - release-patch
@@ -75,19 +56,6 @@ groups:
   - release-docker-image
 
 jobs:
-- name: create-package
-  public: true
-  plan:
-  - get: source
-    resource: package-source:openssl-security-provider
-    trigger: true
-  - task: package
-    file: source/scripts/test.yml
-  - put: package:maven.pkg.github.com|paketo-buildpacks|openssl-security-provider
-    params:
-      file: source/target/openssl-security-provider-*.jar
-      pom_file: source/pom.xml
-
 - name: release-docker-image
   public: true
   plan:
